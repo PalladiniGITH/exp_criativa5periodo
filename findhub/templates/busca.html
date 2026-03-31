@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FindHub | Busca</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <h1>FindHub</h1>
+    <nav>
+      <a href="{{ url_for('cadastro') }}">Cadastro</a>
+      <a href="{{ url_for('busca') }}">Busca</a>
+      <a href="{{ url_for('admin') }}">Admin</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Busca de pessoas desaparecidas</h2>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="alerts">
+            {% for category, message in messages %}
+              <li class="alert {{ category }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      <form method="GET" action="{{ url_for('busca') }}" class="filters" id="filters-form">
+        <input type="text" name="name" placeholder="Nome" value="{{ request.args.get('name', '') }}">
+        <input type="number" name="age" placeholder="Idade" value="{{ request.args.get('age', '') }}">
+        <input type="text" name="location" placeholder="Localização" value="{{ request.args.get('location', '') }}">
+        <input type="date" name="date" value="{{ request.args.get('date', '') }}">
+        <button type="submit">Filtrar</button>
+      </form>
+
+      <div class="results" id="results">
+        {% for person in people %}
+          <article class="result-card">
+            <img src="{{ url_for('uploaded_file', filename=person.photo_filename) }}" alt="Foto de {{ person.full_name }}">
+            <div>
+              <h3>{{ person.full_name }}</h3>
+              <p><strong>Idade:</strong> {{ person.age }}</p>
+              <p><strong>Última localização:</strong> {{ person.last_known_location }}</p>
+              <p><strong>Data do desaparecimento:</strong> {{ person.disappearance_date.strftime('%d/%m/%Y') }}</p>
+              <p><strong>Status:</strong> {{ person.status }}</p>
+            </div>
+          </article>
+        {% else %}
+          <p>Nenhum registro encontrado.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('filters-form');
+    form.addEventListener('submit', () => {
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Buscando...';
+    });
+  </script>
+</body>
+</html>

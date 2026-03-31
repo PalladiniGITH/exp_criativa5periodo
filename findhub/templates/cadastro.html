@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FindHub | Cadastro</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <h1>FindHub</h1>
+    <nav>
+      <a href="{{ url_for('cadastro') }}">Cadastro</a>
+      <a href="{{ url_for('busca') }}">Busca</a>
+      <a href="{{ url_for('admin') }}">Admin</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Cadastro público de pessoa desaparecida</h2>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="alerts">
+            {% for category, message in messages %}
+              <li class="alert {{ category }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      <form action="{{ url_for('cadastro') }}" method="POST" enctype="multipart/form-data" class="grid-form">
+        <label>Nome completo
+          <input type="text" name="full_name" required>
+        </label>
+
+        <label>Idade
+          <input type="number" name="age" min="0" max="130" required>
+        </label>
+
+        <label>Data do desaparecimento
+          <input type="date" name="disappearance_date" required>
+        </label>
+
+        <label>Última localização conhecida
+          <input type="text" name="last_known_location" required>
+        </label>
+
+        <label>Descrição física
+          <textarea name="physical_description" rows="4" required></textarea>
+        </label>
+
+        <label>Foto (JPG/PNG até 5MB)
+          <input type="file" name="photo" accept="image/png,image/jpeg" required>
+        </label>
+
+        <label>Nome/contato de quem está registrando
+          <input type="text" name="reporter_contact" required>
+        </label>
+
+        <button type="submit">Salvar registro</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
