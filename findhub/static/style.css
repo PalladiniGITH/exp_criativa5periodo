@@ -9,7 +9,9 @@
   --success: #166534;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -28,7 +30,10 @@ body {
   gap: 10px;
 }
 
-.topbar nav { display: flex; gap: 12px; }
+.topbar nav {
+  display: flex;
+  gap: 12px;
+}
 .topbar a {
   text-decoration: none;
   color: var(--primary);
@@ -48,7 +53,8 @@ body {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
-.grid-form, .filters {
+.grid-form,
+.filters {
   display: grid;
   gap: 12px;
 }
@@ -59,7 +65,9 @@ body {
   font-size: 0.95rem;
 }
 
-input, textarea, button {
+input,
+textarea,
+button {
   width: 100%;
   padding: 10px;
   border: 1px solid #cbd5e1;
@@ -75,7 +83,9 @@ button {
   font-weight: 700;
 }
 
-button.danger { background: var(--danger); }
+button.danger {
+  background: var(--danger);
+}
 
 .alerts {
   list-style: none;
@@ -88,8 +98,14 @@ button.danger { background: var(--danger); }
   margin-bottom: 8px;
 }
 
-.alert.success { background: #dcfce7; color: var(--success); }
-.alert.error { background: #fee2e2; color: var(--danger); }
+.alert.success {
+  background: #dcfce7;
+  color: var(--success);
+}
+.alert.error {
+  background: #fee2e2;
+  color: var(--danger);
+}
 
 .results {
   margin-top: 16px;
@@ -149,4 +165,116 @@ button.danger { background: var(--danger); }
     width: 100%;
     height: 220px;
   }
+}
+
+/* ===== Privacy Policy ===== */
+.privacy-policy h3 {
+  margin-top: 28px;
+  font-size: 1.05rem;
+  color: var(--primary);
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 4px;
+}
+
+.privacy-policy p {
+  margin: 10px 0;
+  line-height: 1.75;
+  color: #374151;
+}
+
+.policy-updated {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.policy-footer {
+  margin-top: 36px;
+  padding: 16px;
+  background: #f9fafb;
+  border-left: 4px solid var(--primary);
+  border-radius: 4px;
+}
+
+.btn-back {
+  display: inline-block;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-back:hover {
+  text-decoration: underline;
+}
+
+.privacy-notice {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.privacy-notice a {
+  color: var(--primary);
+}
+
+/* ===== Checkbox LGPD ===== */
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.checkbox-label input {
+  width: auto;
+  margin-top: 3px;
+}
+
+/* ===== Token de exclusão ===== */
+.token-box {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #fefce8;
+  border-left: 4px solid #ca8a04;
+  border-radius: 4px;
+}
+
+.token-box code {
+  display: block;
+  margin-top: 8px;
+  font-size: 1rem;
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.05em;
+  color: #1f2937;
+}
+
+/* ===== Solicitação de exclusão (busca) ===== */
+.exclusao-form {
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+.exclusao-form summary {
+  cursor: pointer;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.exclusao-form form {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.exclusao-pendente {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.pending-item {
+  border-left: 4px solid var(--danger);
+  background: #fff5f5;
 }

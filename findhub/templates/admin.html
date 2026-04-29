@@ -1,102 +1,168 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FindHub | Admin</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-  <header class="topbar">
-    <h1>FindHub</h1>
-    <nav>
-      <a href="{{ url_for('cadastro') }}">Cadastro</a>
-      <a href="{{ url_for('busca') }}">Busca</a>
-      <a href="{{ url_for('admin') }}">Admin</a>
-    </nav>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FindHub | Admin</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>FindHub</h1>
+      <nav>
+        <a href="{{ url_for('cadastro') }}">Cadastro</a>
+        <a href="{{ url_for('busca') }}">Busca</a>
+        <a href="{{ url_for('admin') }}">Admin</a>
+      </nav>
+    </header>
 
-  <main class="container">
-    <section class="card">
-      <h2>Painel administrativo</h2>
+    <main class="container">
+      <section class="card">
+        <h2>Painel administrativo</h2>
 
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <ul class="alerts">
-            {% for category, message in messages %}
-              <li class="alert {{ category }}">{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-
-      {% if not authenticated %}
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %}
+        <ul class="alerts">
+          {% for category, message in messages %}
+          <li class="alert {{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %} {% endwith %} {% if not authenticated %}
         <form method="POST" class="grid-form auth-form">
-          <input type="hidden" name="form_type" value="login">
-          <label>Usuário
-            <input type="text" name="username" required>
+          <input type="hidden" name="form_type" value="login" />
+          <label
+            >Usuário
+            <input type="text" name="username" required />
           </label>
-          <label>Senha
-            <input type="password" name="password" required>
+          <label
+            >Senha
+            <input type="password" name="password" required />
           </label>
           <button type="submit">Entrar</button>
         </form>
-      {% else %}
+        {% else %}
         <div class="admin-header">
           <p>Logado como <strong>{{ admin_username }}</strong></p>
           <form method="POST">
-            <input type="hidden" name="form_type" value="logout">
+            <input type="hidden" name="form_type" value="logout" />
             <button type="submit" class="danger">Sair</button>
           </form>
         </div>
 
+        {% if pending %}
+        <h3>Solicitações de exclusão pendentes</h3>
+        {% for person in pending %}
+        <div class="admin-item pending-item">
+          <p><strong>{{ person.full_name }}</strong> (ID {{ person.id }})</p>
+          <p><strong>Justificativa:</strong> {{ person.deletion_reason }}</p>
+          <form method="POST" class="actions">
+            <input type="hidden" name="person_id" value="{{ person.id }}" />
+            <button
+              type="submit"
+              name="action"
+              value="approve_deletion"
+              class="danger"
+            >
+              Aprovar exclusão
+            </button>
+            <button type="submit" name="action" value="reject_deletion">
+              Rejeitar
+            </button>
+          </form>
+        </div>
+        {% endfor %} {% endif %}
+
         <h3>Registros</h3>
         {% for person in people %}
-          <form method="POST" class="admin-item">
-            <input type="hidden" name="person_id" value="{{ person.id }}">
-            <label>Nome
-              <input type="text" name="full_name" value="{{ person.full_name }}" required>
-            </label>
-            <label>Idade
-              <input type="number" name="age" value="{{ person.age }}" min="0" max="130" required>
-            </label>
-            <label>Data do desaparecimento
-              <input type="date" name="disappearance_date" value="{{ person.disappearance_date }}" required>
-            </label>
-            <label>Última localização
-              <input type="text" name="last_known_location" value="{{ person.last_known_location }}" required>
-            </label>
-            <label>Descrição física
-              <textarea name="physical_description" rows="3" required>{{ person.physical_description }}</textarea>
-            </label>
-            <label>Contato do registrante
-              <input type="text" name="reporter_contact" value="{{ person.reporter_contact }}" required>
-            </label>
+        <form method="POST" class="admin-item">
+          <input type="hidden" name="person_id" value="{{ person.id }}" />
+          <label
+            >Nome
+            <input
+              type="text"
+              name="full_name"
+              value="{{ person.full_name }}"
+              required
+            />
+          </label>
+          <label
+            >Idade
+            <input
+              type="number"
+              name="age"
+              value="{{ person.age }}"
+              min="0"
+              max="130"
+              required
+            />
+          </label>
+          <label
+            >Data do desaparecimento
+            <input
+              type="date"
+              name="disappearance_date"
+              value="{{ person.disappearance_date }}"
+              required
+            />
+          </label>
+          <label
+            >Última localização
+            <input
+              type="text"
+              name="last_known_location"
+              value="{{ person.last_known_location }}"
+              required
+            />
+          </label>
+          <label
+            >Descrição física
+            <textarea name="physical_description" rows="3" required>
+{{ person.physical_description }}</textarea
+            >
+          </label>
+          <label
+            >Contato do registrante
+            <input
+              type="text"
+              name="reporter_contact"
+              value="{{ person.reporter_contact }}"
+              required
+            />
+          </label>
 
-            <div class="actions">
-              <button type="submit" name="action" value="edit">Salvar edição</button>
-              <button type="submit" name="action" value="mark_found">Marcar como encontrado</button>
-              <button type="submit" name="action" value="delete" class="danger">Excluir</button>
-            </div>
-          </form>
+          <div class="actions">
+            <button type="submit" name="action" value="edit">
+              Salvar edição
+            </button>
+            <button type="submit" name="action" value="mark_found">
+              Marcar como encontrado
+            </button>
+            <button type="submit" name="action" value="delete" class="danger">
+              Excluir
+            </button>
+          </div>
+        </form>
         {% else %}
-          <p>Nenhum registro disponível.</p>
+        <p>Nenhum registro disponível.</p>
         {% endfor %}
 
         <h3>Log de ações</h3>
         <ul class="log-list">
           {% for log in logs %}
-            <li>
-              <strong>{{ log.created_at.strftime('%d/%m/%Y %H:%M') }}</strong>
-              — {{ log.admin_username }} — {{ log.action }}
-              {% if log.details %} ({{ log.details }}){% endif %}
-            </li>
+          <li>
+            <strong>{{ log.created_at.strftime('%d/%m/%Y %H:%M') }}</strong>
+            — {{ log.admin_username }} — {{ log.action }} {% if log.details %}
+            ({{ log.details }}){% endif %}
+          </li>
           {% else %}
-            <li>Nenhuma ação registrada.</li>
+          <li>Nenhuma ação registrada.</li>
           {% endfor %}
         </ul>
-      {% endif %}
-    </section>
-  </main>
-</body>
+        {% endif %}
+      </section>
+    </main>
+  </body>
 </html>

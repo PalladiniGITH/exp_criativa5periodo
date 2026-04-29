@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import uuid4
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -18,6 +19,9 @@ class MissingPerson(db.Model):
     photo_filename = db.Column(db.String(255), nullable=False)
     reporter_contact = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(20), nullable=False, default="desaparecido", index=True)
+    deletion_token = db.Column(db.String(64), nullable=False, default=lambda: uuid4().hex)
+    deletion_requested = db.Column(db.Boolean, nullable=False, default=False)
+    deletion_reason = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime,

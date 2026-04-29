@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FindHub | Política de Privacidade</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>FindHub</h1>
+      <nav>
+        <a href="{{ url_for('cadastro') }}">Cadastro</a>
+        <a href="{{ url_for('busca') }}">Busca</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="card privacy-policy">
+        <h2>Política de Privacidade</h2>
+        <p class="policy-updated">Última atualização: {{ last_updated }}</p>
+
+        <p>
+          O <strong>FindHub</strong> é uma plataforma de utilidade pública
+          desenvolvida para apoiar a busca de pessoas desaparecidas no Brasil.
+          Esta política descreve como tratamos os dados pessoais, em
+          conformidade com a
+          <strong
+            >Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018)</strong
+          >.
+        </p>
+
+        <h3>1. Dados coletados</h3>
+        <p>
+          Coletamos dados sobre a pessoa desaparecida (nome, idade, data do
+          desaparecimento, última localização, descrição física e fotografia) e
+          dados de quem realiza o cadastro (nome e contato, fornecidos
+          voluntariamente).
+        </p>
+
+        <h3>2. Finalidade</h3>
+        <p>
+          Os dados são usados exclusivamente para auxiliar na localização de
+          pessoas desaparecidas. Não há uso comercial, publicitário ou repasse a
+          terceiros.
+        </p>
+
+        <h3>3. Base legal</h3>
+        <p>
+          O tratamento é realizado com base no
+          <strong>legítimo interesse</strong> (art. 7º, IX da LGPD) e na
+          <strong>tutela da saúde e segurança</strong> (art. 7º, VII),
+          considerando que o interesse da pessoa desaparecida em ser localizada
+          prevalece.
+        </p>
+
+        <h3>4. Dados públicos</h3>
+        <p>
+          As informações cadastradas ficam visíveis publicamente na página de
+          busca. Ao registrar um caso, a pessoa responsável pelo cadastro
+          declara ciência disso.
+        </p>
+
+        <h3>5. Segurança</h3>
+        <p>
+          Adotamos medidas técnicas de segurança incluindo: HTTPS obrigatório,
+          senhas com hash bcrypt, proteção contra injeção SQL via ORM, validação
+          de uploads, cabeçalhos de segurança HTTP e log de ações
+          administrativas.
+        </p>
+
+        <h3>6. Retenção</h3>
+        <p>
+          Casos ativos permanecem armazenados até resolução. Após marcação como
+          "encontrado", os dados são mantidos por 90 dias para fins de auditoria
+          e então removidos permanentemente.
+        </p>
+
+        <h3>7. Direitos dos titulares</h3>
+        <p>
+          Nos termos do art. 18 da LGPD, você pode solicitar acesso, correção,
+          exclusão ou portabilidade dos seus dados. Para solicitar a exclusão de
+          um registro, utilize o código único recebido no momento do cadastro. A
+          solicitação será analisada pela equipe administrativa antes de ser
+          efetivada. Outras solicitações são atendidas em até 15 dias úteis pelo
+          repositório público do projeto.
+        </p>
+
+        <h3>8. Contato</h3>
+        <p>
+          Dúvidas ou solicitações podem ser encaminhadas via repositório público
+          do projeto no GitHub. A função de Encarregado de Dados (DPO) é
+          exercida pelo grupo responsável, supervisionado pelos professores da
+          disciplina PCS123 — PUCPR.
+        </p>
+
+        <div class="policy-footer">
+          <p>
+            Ao utilizar o FindHub para cadastrar um caso, você declara ter lido
+            e compreendido esta Política de Privacidade.
+          </p>
+          <a href="{{ url_for('cadastro') }}" class="btn-back"
+            >← Voltar ao cadastro</a
+          >
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

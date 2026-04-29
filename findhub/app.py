@@ -83,9 +83,19 @@ def uploaded_file(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 
+@app.route("/lgpd")
+def lgpd():
+    last_updated = datetime.now().strftime("%d/%m/%Y")
+    return render_template("lgpd.html", last_updated=last_updated)
+
+
 @app.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
     if request.method == "POST":
+        if not request.form.get("aceite_lgpd"):
+            flash("Você precisa aceitar a Política de Privacidade.", "error")
+            return redirect(url_for("cadastro"))
+
         full_name = request.form.get("full_name", "").strip()
         age_raw = request.form.get("age", "").strip()
         disappearance_date_raw = request.form.get("disappearance_date", "").strip()
@@ -142,9 +152,36 @@ def cadastro():
         db.session.commit()
 
         flash("Registro enviado com sucesso.", "success")
-        return redirect(url_for("cadastro"))
+        return render_template("cadastro.html", deletion_token=missing_person.deletion_token)
 
-    return render_template("cadastro.html")
+    return render_template("cadastro.html", deletion_token=None)
+
+
+@app.route("/solicitar-exclusao/<int:person_id>", methods=["POST"])
+def solicitar_exclusao(person_id):
+    token = request.form.get("token", "").strip()
+    reason = request.form.get("reason", "").strip()
+
+    if not token or not reason:
+        flash("Preencha o código e a justificativa.", "error")
+        return redirect(url_for("busca"))
+
+    person = MissingPerson.query.get(person_id)
+    if not person or person.deletion_token != token:
+        flash("Código inválido.", "error")
+        return redirect(url_for("busca"))
+
+    if person.deletion_requested:
+        flash("Já existe uma solicitação de exclusão pendente para este registro.", "error")
+        return redirect(url_for("busca"))
+
+    person.deletion_requested = True
+    person.deletion_reason = reason
+    db.session.commit()
+
+    _log_action("deletion_requested", record_id=person.id, details=f"Solicitação de exclusão: {reason}")
+    flash("Solicitação enviada. A equipe administrativa irá analisar seu pedido.", "success")
+    return redirect(url_for("busca"))
 
 
 @app.route("/busca", methods=["GET"])
@@ -247,18 +284,36 @@ def admin():
             _log_action("delete", record_id=int(person_id), details="Registro excluído")
             flash("Registro excluído.", "success")
 
+        elif action == "approve_deletion":
+            photo_path = Path(app.config["UPLOAD_FOLDER"]) / person.photo_filename
+            db.session.delete(person)
+            db.session.commit()
+            if photo_path.exists():
+                photo_path.unlink()
+            _log_action("approve_deletion", record_id=int(person_id), details=f"Exclusão aprovada: {person.full_name}")
+            flash("Exclusão aprovada e registro removido.", "success")
+
+        elif action == "reject_deletion":
+            person.deletion_requested = False
+            person.deletion_reason = None
+            db.session.commit()
+            _log_action("reject_deletion", record_id=person.id, details=f"Exclusão rejeitada: {person.full_name}")
+            flash("Solicitação de exclusão rejeitada.", "success")
+
         else:
             flash("Ação inválida.", "error")
 
         return redirect(url_for("admin"))
 
     people = MissingPerson.query.order_by(MissingPerson.created_at.desc()).all()
+    pending = MissingPerson.query.filter_by(deletion_requested=True).all()
     logs = AdminActionLog.query.order_by(AdminActionLog.created_at.desc()).limit(20).all()
 
     return render_template(
         "admin.html",
         authenticated=_admin_authenticated(),
         people=people,
+        pending=pending,
         logs=logs,
         admin_username=session.get("admin_username"),
     )
