@@ -18,6 +18,15 @@ class MissingPerson(db.Model):
     photo_filename = db.Column(db.String(255), nullable=False)
     reporter_contact = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(20), nullable=False, default="desaparecido", index=True)
+
+    # Token de exclusão
+    # - hash scrypt do token (nunca o token em texto puro)
+    # - expira em 1 ano após o cadastro
+    # - contador de tentativas inválidas (bloqueia após 10)
+    deletion_token_hash = db.Column(db.String(128), nullable=True)
+    deletion_token_expires_at = db.Column(db.DateTime, nullable=True)
+    deletion_token_attempts = db.Column(db.Integer, nullable=False, default=0)
+
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime,
@@ -43,4 +52,15 @@ class AdminActionLog(db.Model):
     action = db.Column(db.String(100), nullable=False)
     record_id = db.Column(db.Integer, nullable=True)
     details = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
+class DeletionRequest(db.Model):
+    __tablename__ = "deletion_requests"
+
+    id = db.Column(db.Integer, primary_key=True)
+    person_id = db.Column(db.Integer, db.ForeignKey("missing_people.id"), nullable=False)
+    justification = db.Column(db.Text, nullable=False)
+    # pendente, aprovado, rejeitado
+    status = db.Column(db.String(20), nullable=False, default="pendente")
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

@@ -1,67 +1,167 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FindHub | Cadastro</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-  <header class="topbar">
-    <h1>FindHub</h1>
-    <nav>
-      <a href="{{ url_for('cadastro') }}">Cadastro</a>
-      <a href="{{ url_for('busca') }}">Busca</a>
-      <a href="{{ url_for('admin') }}">Admin</a>
-    </nav>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FindHub | Cadastro</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>FindHub</h1>
+      <nav>
+        <a href="{{ url_for('cadastro') }}">Cadastro</a>
+        <a href="{{ url_for('busca') }}">Busca</a>
+        <a href="{{ url_for('lgpd') }}">LGPD</a>
+      </nav>
+    </header>
 
-  <main class="container">
-    <section class="card">
-      <h2>Cadastro público de pessoa desaparecida</h2>
+    <main class="container">
+      <section class="card">
+        <h2>Cadastro público de pessoa desaparecida</h2>
 
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <ul class="alerts">
-            {% for category, message in messages %}
-              <li class="alert {{ category }}">{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %}
+        <ul class="alerts">
+          {% for category, message in messages %}
+          <li class="alert {{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %} {% endwith %}
 
-      <form action="{{ url_for('cadastro') }}" method="POST" enctype="multipart/form-data" class="grid-form">
-        <label>Nome completo
-          <input type="text" name="full_name" required>
-        </label>
+        <form
+          action="{{ url_for('cadastro') }}"
+          method="POST"
+          enctype="multipart/form-data"
+          class="grid-form"
+          id="form-cadastro"
+        >
+          <label
+            >Nome completo<input type="text" name="full_name" required
+          /></label>
+          <label
+            >Idade<input type="number" name="age" min="0" max="130" required
+          /></label>
+          <label
+            >Data do desaparecimento<input
+              type="date"
+              name="disappearance_date"
+              required
+          /></label>
+          <label
+            >Última localização conhecida<input
+              type="text"
+              name="last_known_location"
+              required
+          /></label>
+          <label
+            >Descrição física<textarea
+              name="physical_description"
+              rows="4"
+              required
+            ></textarea>
+          </label>
+          <label
+            >Foto (JPG/PNG até 5MB — opcional)<input
+              type="file"
+              name="photo"
+              accept="image/png,image/jpeg"
+          /></label>
+          <label
+            >Nome/contato de quem está registrando<input
+              type="text"
+              name="reporter_contact"
+              required
+          /></label>
+          <div class="checkbox-lgpd">
+            <input
+              type="checkbox"
+              id="lgpd_consent"
+              name="lgpd_consent"
+              required
+            />
+            <label for="lgpd_consent"
+              >Declaro que li e concordo com a
+              <a href="{{ url_for('lgpd') }}" target="_blank"
+                >Política de Privacidade</a
+              >.</label
+            >
+          </div>
+          <button type="submit" id="btn-salvar">Salvar registro</button>
+        </form>
+      </section>
+    </main>
 
-        <label>Idade
-          <input type="number" name="age" min="0" max="130" required>
-        </label>
+    {% if token_gerado %}
+    <div class="modal-overlay" id="modal-token">
+      <div class="modal">
+        <div class="modal-icon">✓</div>
+        <h2>Registro salvo!</h2>
+        <p>
+          O registro de <strong>{{ nome_cadastrado }}</strong> foi cadastrado
+          com sucesso.
+        </p>
+        <p class="token-aviso">
+          <strong>Guarde o token abaixo.</strong> Ele será necessário para
+          solicitar a exclusão do registro no futuro. Ele é exibido apenas uma
+          vez.
+        </p>
+        <div class="token-box">
+          <code id="token-valor">{{ token_gerado }}</code>
+          <button type="button" class="btn-copiar" onclick="copiarToken()">
+            Copiar
+          </button>
+        </div>
+        <p id="msg-copiado" class="msg-copiado" style="display: none">
+          Token copiado!
+        </p>
+        <div class="checkbox-lgpd" style="margin-top: 16px">
+          <input type="checkbox" id="confirm-token" />
+          <label for="confirm-token"
+            >Confirmo que anotei ou copiei o token.</label
+          >
+        </div>
+        <button
+          type="button"
+          class="btn-fechar"
+          id="btn-fechar-modal"
+          onclick="fecharModal()"
+          disabled
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
+    {% endif %}
 
-        <label>Data do desaparecimento
-          <input type="date" name="disappearance_date" required>
-        </label>
-
-        <label>Última localização conhecida
-          <input type="text" name="last_known_location" required>
-        </label>
-
-        <label>Descrição física
-          <textarea name="physical_description" rows="4" required></textarea>
-        </label>
-
-        <label>Foto (JPG/PNG até 5MB)
-          <input type="file" name="photo" accept="image/png,image/jpeg" required>
-        </label>
-
-        <label>Nome/contato de quem está registrando
-          <input type="text" name="reporter_contact" required>
-        </label>
-
-        <button type="submit">Salvar registro</button>
-      </form>
-    </section>
-  </main>
-</body>
+    <script>
+      const form = document.getElementById("form-cadastro");
+      if (form) {
+        form.addEventListener("submit", () => {
+          const btn = document.getElementById("btn-salvar");
+          btn.disabled = true;
+          btn.textContent = "Salvando...";
+        });
+      }
+      const checkConfirm = document.getElementById("confirm-token");
+      const btnFechar = document.getElementById("btn-fechar-modal");
+      if (checkConfirm && btnFechar) {
+        checkConfirm.addEventListener("change", () => {
+          btnFechar.disabled = !checkConfirm.checked;
+        });
+      }
+      function copiarToken() {
+        const token = document.getElementById("token-valor").textContent;
+        navigator.clipboard.writeText(token).then(() => {
+          document.getElementById("msg-copiado").style.display = "block";
+        });
+      }
+      function fecharModal() {
+        document.getElementById("modal-token").style.display = "none";
+      }
+    </script>
+  </body>
 </html>
