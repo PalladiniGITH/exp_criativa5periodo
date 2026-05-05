@@ -22,6 +22,9 @@ if not secret_key:
     raise RuntimeError("A variável SECRET_KEY é obrigatória.")
 
 app.config["SECRET_KEY"] = secret_key
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 app.config["UPLOAD_FOLDER"] = str(Path(__file__).resolve().parent / "static" / "uploads")
 
