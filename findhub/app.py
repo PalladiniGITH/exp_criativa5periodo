@@ -33,7 +33,7 @@ def carregar_segredos_vault():
     cliente = hvac.Client(
         url=vault_addr,
         token=vault_token,
-        verify=vault_cacert
+        verify=False # Para desenvolvimento local. Em producao, configure o CA corretamente e remova verify=False.
     )
 
     if not cliente.is_authenticated():
