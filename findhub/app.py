@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
+import hvac
 
 import bcrypt
 from flask import Flask, flash, redirect, render_template, request, send_from_directory, session, url_for
@@ -17,9 +18,56 @@ MAX_CONTENT_LENGTH = 5 * 1024 * 1024
 
 app = Flask(__name__)
 
-secret_key = os.getenv("SECRET_KEY")
-if not secret_key:
-    raise RuntimeError("A variável SECRET_KEY é obrigatória.")
+def carregar_segredos_vault():
+    """
+    Busca as credenciais do Vault na inicializacao da aplicacao.
+    O token findhub-backend tem permissao so de leitura em findhub/backend/*.
+    """
+    vault_addr = os.getenv("VAULT_ADDR", "https://192.168.2.50:8200")
+    vault_token = os.getenv("VAULT_TOKEN")
+    vault_cacert = os.getenv("VAULT_CACERT", "/certs/vault.crt")
+
+    if not vault_token:
+        raise RuntimeError("A variavel VAULT_TOKEN e obrigatoria.")
+
+    cliente = hvac.Client(
+        url=vault_addr,
+        token=vault_token,
+        verify=vault_cacert
+    )
+
+    if not cliente.is_authenticated():
+        raise RuntimeError("Vault: token invalido ou Vault selado.")
+
+    db = cliente.secrets.kv.v2.read_secret_version(
+        path="backend/db",
+        mount_point="findhub"
+    )["data"]["data"]
+
+    app_secrets = cliente.secrets.kv.v2.read_secret_version(
+        path="backend/app",
+        mount_point="findhub"
+    )["data"]["data"]
+
+    return {
+        "DB_HOST": db["host"],
+        "DB_PORT": db["port"],
+        "DB_NAME": db["dbname"],
+        "DB_USER": db["user"],
+        "DB_PASSWORD": db["password"],
+        "SECRET_KEY": app_secrets["secret_key"],
+        "ADMIN_PASSWORD": app_secrets["admin_password"],
+    }
+
+
+segredos = carregar_segredos_vault()
+
+secret_key = segredos["SECRET_KEY"]
+db_host = segredos["DB_HOST"]
+db_port = segredos["DB_PORT"]
+db_name = segredos["DB_NAME"]
+db_user = segredos["DB_USER"]
+db_password = segredos["DB_PASSWORD"]
 
 app.config["SECRET_KEY"] = secret_key
 app.config["SESSION_COOKIE_SECURE"] = True
@@ -27,13 +75,6 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 app.config["UPLOAD_FOLDER"] = str(Path(__file__).resolve().parent / "static" / "uploads")
-
-
-db_host = os.getenv("DB_HOST")
-db_port = os.getenv("DB_PORT", "5432")
-db_name = os.getenv("DB_NAME")
-db_user = os.getenv("DB_USER")
-db_password = os.getenv("DB_PASSWORD")
 
 if not all([db_host, db_name, db_user, db_password]):
     raise RuntimeError("As variáveis DB_HOST, DB_NAME, DB_USER e DB_PASSWORD são obrigatórias.")
